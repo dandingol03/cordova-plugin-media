@@ -1,5 +1,5 @@
 {
-  "name": "cordova-plugin-media",
+  "name": "danding-cordova-plugin-media",
   "version": "2.4.1-dev",
   "description": "Cordova Media Plugin",
   "cordova": {
@@ -40,7 +40,7 @@
     "test": "npm run jshint",
     "jshint": "jshint www && jshint src && jshint tests"
   },
-  "author": "Apache Software Foundation",
+  "author": "dandingol03",
   "license": "Apache-2.0",
   "engines": {
     "cordovaDependencies": {

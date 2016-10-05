@@ -116,7 +116,11 @@ public class AudioHandler extends CordovaPlugin {
                 fileUriStr = target;
             }
             promptForRecord();
-        }
+        }else if (action.equals("getAudioFullPath")) {
+                    String path=this.getAudioFullPath(args.getString((0)));
+                    callbackContext.sendPluginResult(new PluginResult(status, path));
+                    return true;
+         }
         else if (action.equals("stopRecordingAudio")) {
             this.stopRecordingAudio(args.getString(0), true);
         }
@@ -298,6 +302,15 @@ public class AudioHandler extends CordovaPlugin {
             audio.stopRecording(stop);
         }
     }
+
+     public String getAudioFullPath(String id) {
+            AudioPlayer audio = this.players.get(id);
+            if(audio!=null)
+                return audio.getTempFile();
+            else
+                return null;
+
+     }
 
     /**
      * Resume recording

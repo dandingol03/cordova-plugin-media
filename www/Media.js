@@ -139,6 +139,16 @@ Media.prototype.stopRecord = function() {
 };
 
 /**
+ * get fullPath of tempFile which record audio
+ */
+Media.prototype.getAudioFullPath=function(success){
+    exec(function(p){
+            success(p);
+        }
+        , this.errorCallback, "Media", "getAudioFullPath", [this.id]);
+}
+
+/**
  * Pause recording audio file.
  */
 Media.prototype.pauseRecord = function() {

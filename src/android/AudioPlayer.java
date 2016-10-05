@@ -106,6 +106,11 @@ public class AudioPlayer implements OnCompletionListener, OnPreparedListener, On
         this.tempFiles = new LinkedList<String>();
     }
 
+    public String getTempFile()
+    {
+        return this.tempFile;
+    }
+
     private String generateTempFile() {
       String tempFileName = null;
       if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
