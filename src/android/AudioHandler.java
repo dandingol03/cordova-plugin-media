@@ -64,9 +64,13 @@ public class AudioHandler extends CordovaPlugin {
 
 
     public static String [] permissions = { Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    public static String [] authorities={Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO};
+    public static String [] allPermissions={Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE};
     public static int RECORD_AUDIO = 0;
     public static int WRITE_EXTERNAL_STORAGE = 1;
-
+    public final int CHECK_AUTHORITIES=3;
+    public final int REQUEST_ALL_PERMISSIONS=2;
     public static final int PERMISSION_DENIED_ERROR = 20;
 
     private String recordId;
@@ -116,13 +120,22 @@ public class AudioHandler extends CordovaPlugin {
                 fileUriStr = target;
             }
             promptForRecord();
-        }else if (action.equals("getAudioFullPath")) {
+        }else if(action.equals("requestPermissions"))
+         {
+                      messageChannel=callbackContext;
+                      this.requestPermissions();
+                      return true;
+         }
+        else if (action.equals("getAudioFullPath")) {
                     String path=this.getAudioFullPath(args.getString((0)));
                     callbackContext.sendPluginResult(new PluginResult(status, path));
                     return true;
          }
         else if (action.equals("stopRecordingAudio")) {
             this.stopRecordingAudio(args.getString(0), true);
+        }
+        else if(action.equals("checkAuthorities")){
+            PermissionHelper.requestPermissions(this, CHECK_AUTHORITIES, authorities);
         }
         else if (action.equals("pauseRecordingAudio")) {
             this.stopRecordingAudio(args.getString(0), false);
@@ -533,15 +546,57 @@ public class AudioHandler extends CordovaPlugin {
     public void onRequestPermissionResult(int requestCode, String[] permissions,
                                           int[] grantResults) throws JSONException
     {
-        for(int r:grantResults)
-        {
-            if(r == PackageManager.PERMISSION_DENIED)
-            {
-                this.messageChannel.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, PERMISSION_DENIED_ERROR));
-                return;
-            }
-        }
-        promptForRecord();
+           switch(requestCode)
+           {
+               case CHECK_AUTHORITIES:
+                   ArrayList<Boolean> results=new ArrayList<Boolean>();
+                   for(int r:grantResults)
+                   {
+                       if(r == PackageManager.PERMISSION_DENIED)
+                       {
+                           results.add(false);
+                       }else{
+                           results.add(true);
+                       }
+                   }
+                   this.callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, results.toString()));
+                   break;
+               case REQUEST_ALL_PERMISSIONS:
+                          ArrayList<Boolean> re= new ArrayList<Boolean>();
+                           for(int r:grantResults)
+                           {
+                               if(r == PackageManager.PERMISSION_DENIED)
+                               {
+                                   re.add(false);
+                               }else{
+                                   re.add(true);
+                               }
+                           }
+                           this.messageChannel.sendPluginResult(new PluginResult(PluginResult.Status.OK, re.toString()));
+               break;
+               default:
+                   for(int r:grantResults)
+                   {
+                       if(r == PackageManager.PERMISSION_DENIED)
+                       {
+                           this.messageChannel.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, PERMISSION_DENIED_ERROR));
+                           return;
+                       }
+                   }
+                   promptForRecord();
+                   break;
+           }
+    }
+
+
+
+
+    /**
+     * this function will request all permissions we will need
+     */
+    private void requestPermissions()
+    {
+        PermissionHelper.requestPermissions(this, REQUEST_ALL_PERMISSIONS, allPermissions);
     }
 
     /*

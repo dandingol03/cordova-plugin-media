@@ -69,6 +69,17 @@ Media.get = function(id) {
     return mediaObjects[id];
 };
 
+
+/**
+ *  author:danding,授权请求
+ */
+Media.requestPermissions=function (success,fail) {
+
+    exec(function(p) {
+        success(p);
+    }, fail, "Media", "requestPermissions");
+}
+
 /**
  * Start or resume playing audio file.
  */
